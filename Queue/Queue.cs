@@ -132,6 +132,7 @@ namespace Structure
         /// </summary>
         public void Trim()
         {
+            if(Count!=0)
             Resize(counter);
         }
         /// <summary>
