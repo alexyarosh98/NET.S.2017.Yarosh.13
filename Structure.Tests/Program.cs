@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Threading.Tasks;
 using Queue;
@@ -110,9 +111,57 @@ namespace Structure.Tests
             Show(newIntSet);
 
             #endregion
+
+            #region BiTree Int32 with default and not default comparers
+            Console.WriteLine("Lets create new binary tree<int> with default comparer");
+            BiTree<int> biTreeInt=new BiTree<int>(new int[]{10,15,-7,7,14,3,2,1,22});
+            Show(biTreeInt);
+            Console.WriteLine("Tree contains 22: "+biTreeInt.Contains(22)+"\n Tree contains -16:"+biTreeInt.Contains(-16));
+
+            Console.WriteLine("Lets remove 3");
+            biTreeInt.Remove(3);
+            Show(biTreeInt);
+
+            Console.WriteLine("Lets create new binary trr<int> with logic of compearing int by Math.Abs");
+            BiTree<int> biTreeInt2 = new BiTree<int>(new int[] { 10, 15, -7, 7, 14, 3, 2, 1, 22 },NoneDefaultComparisionForIntTree);
+            Show(biTreeInt2);
+            Console.WriteLine("Tree contains 22: " + biTreeInt2.Contains(22) + "\n Tree contains -16:" + biTreeInt2.Contains(-16));
+
+            Console.WriteLine("Lets remove 3");
+            biTreeInt2.Remove(3);
+            Show(biTreeInt2);
+
+
+            #endregion
+
+            #region BiTree String with default and nonedefault comparers
+
+            Console.WriteLine("Lets create a tree of string with default comparer");
+            BiTree<string> biTreeStrings=new BiTree<string>(new []{"onde","two","three","four","five","six","seven"});
+            Show(biTreeStrings);
+
+            Console.WriteLine("Tree contains onde: "+biTreeStrings.Contains("onde")+"\nTree contains nine"+biTreeStrings.Contains("nine"));
+
+            Console.WriteLine("Lets remove four");
+            biTreeStrings.Remove("four");
+            Show(biTreeStrings);
+
+
+            Console.WriteLine("Lets create a tree of string with comparer of lenth of string");
+            BiTree<string> biTreeStrings2 = new BiTree<string>(new[] { "onde", "two", "three", "four", "five", "six", "seven" });
+            Show(biTreeStrings2);
+
+            Console.WriteLine("Tree contains onde: " + biTreeStrings2.Contains("onde") + "\nTree contains nine" + biTreeStrings2.Contains("nine"));
+
+            Console.WriteLine("Lets remove four");
+            biTreeStrings.Remove("four");
+            Show(biTreeStrings2);
+
+
+            #endregion>
             Console.ReadKey();
         }
-
+        #region Show functions
         public static void Show<T>(Queue<T> queue)
         {
             Console.WriteLine("Queue now consist if "+ queue.Count+" elements: ");
@@ -124,21 +173,43 @@ namespace Structure.Tests
         }
         public static void Show<T>(Set<T> queue) where T :class 
         {
-            Console.WriteLine("Set now consist if " + queue.Count + " elements: ");
+            Console.WriteLine("Set now consist of " + queue.Count + " elements: ");
             foreach (T element in queue)
             {
                 Console.Write(element + " ");
             }
             Console.WriteLine("\n");
         }
+
+        public static void Show<T>(BiTree<T> biTree)
+        {
+            Console.WriteLine("Tree now consist of " + biTree.Count + " elements(inorder version):");
+            foreach (var element in biTree.Inorder())
+            {
+                Console.Write(element+" ");
+            }
+            Console.WriteLine("\n");
+            Console.WriteLine("Preoder version of the same tree");
+            foreach (var element in biTree.Preorder())
+            {
+                Console.Write(element+" ");
+            }
+            Console.WriteLine("\n");
+        }
+        #endregion
+        public static int NoneDefaultComparisionForIntTree(int obj1, int obj2)
+            => Math.Abs(obj1).CompareTo(Math.Abs(obj2));
+
+        public static int NoneDefaultComparisionForStringTree(string obj1, string obj2)
+            => obj1.Length.CompareTo(obj2.Length);
         public class NoneDefaultStringComparer : IEqualityComparer<string>
         {
-            public bool Equals(string str1,string str2)
+            public bool Equals(string str1, string str2)
             {
                 return str1.Equals(str2, StringComparison.InvariantCultureIgnoreCase);
             }
 
-            public  int GetHashCode(string a)
+            public int GetHashCode(string a)
             {
                 return a.GetHashCode();
             }
