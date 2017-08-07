@@ -131,6 +131,9 @@ namespace Structure.Tests
             biTreeInt2.Remove(3);
             Show(biTreeInt2);
 
+            Console.WriteLine("Lets create new trii but with interface parametr");
+            BiTree<int> newByTree=new BiTree<int>(new []{-123,32,312,31,5,12,13,515},new ComparerForByTree());
+            Show(newByTree);
 
             #endregion
 

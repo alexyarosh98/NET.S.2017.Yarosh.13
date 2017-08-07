@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Structure.BinaryTree;
+
 
 namespace Structure
 {
-    public class BiTree<T>
+    public class BiTree<T>:IEnumerable<T>
     {
         private Node<T> head;
 
@@ -19,28 +20,39 @@ namespace Structure
         private int counter;
 
         private Comparison<T> comparer;
-        //private IEqualityComparer<T> equalityComparer;
+
         /// <summary>
         /// create binary tree whith logic of comparer.(Defalut compearing is by hashcode)
         /// </summary>
         /// <param name="elements">elements to be added to the tree</param>
         /// <param name="comparer">logic of compearing elements in the tree</param>
         /// <exception cref="ArgumentNullException">Elements must not be null</exception>
-        /// <param name="equalityComparer"></param>
-        public BiTree(IEnumerable<T> elements, Comparison<T> comparer = null,
-            IEqualityComparer<T> equalityComparer = null)
+        public BiTree(IEnumerable<T> elements, Comparison<T> comparer = null)
         {
             if (ReferenceEquals(elements, null))
                 throw new ArgumentNullException($"{nameof(elements)} must not be null");
-            if (ReferenceEquals(comparer, null)) this.comparer = Comparers.DefaultComparision;
-            else this.comparer = comparer;
-                //if (ReferenceEquals(equalityComparer, null)) this.equalityComparer = EqualityComparer<T>.Default;
 
-                foreach (T value in elements)
-                {
-                    Add(value);
-                }
+            if (typeof(T).GetInterfaces().Contains(typeof(IComparable)) ||
+                typeof(T).GetInterfaces().Contains(typeof(IComparable<T>)) ||
+                typeof(T).GetInterfaces().Contains(typeof(IComparer)) ||
+                typeof(T).GetInterfaces().Contains(typeof(IComparer<T>)))
+            {
+                if (ReferenceEquals(comparer, null)) this.comparer = Comparer<T>.Default.Compare;
+                else this.comparer = comparer;
+            }
+            else throw new ArgumentException($"Type {nameof(T)} doesn't have default method Comparer. Grant your own comparer or implement " +
+                                             $"IComparer or IComparable interfaces for your type");
+
+            foreach (T value in elements)
+            {
+                Add(value);
+            }
         }
+
+        public BiTree(IEnumerable<T> elements,IComparer<T> comparer):this(elements,comparer.Compare) 
+        {
+        }
+
         /// <summary>
         /// Add element to the tree
         /// </summary>
@@ -48,7 +60,7 @@ namespace Structure
         /// <exception cref="ArgumentNullException">argument must not be null</exception>
         public void Add(T item)
         {
-            if(ReferenceEquals(item,null)) throw new ArgumentNullException($"{nameof(item)} must not be null");
+            if (ReferenceEquals(item, null)) throw new ArgumentNullException($"{nameof(item)} must not be null");
 
             Node<T> node = new Node<T>(item);
 
@@ -74,6 +86,7 @@ namespace Structure
             }
             ++counter;
         }
+
         /// <summary>
         /// Add some elements to the tree
         /// </summary>
@@ -81,13 +94,14 @@ namespace Structure
         /// <exception cref="ArgumentNullException">Elements must not be null</exception>
         public void AddElements(IEnumerable<T> elems)
         {
-            if(ReferenceEquals(elems,null)) throw new ArgumentNullException($"{nameof(elems)} must not be null");
+            if (ReferenceEquals(elems, null)) throw new ArgumentNullException($"{nameof(elems)} must not be null");
 
             foreach (T element in elems)
             {
                 Add(element);
             }
         }
+
         /// <summary>
         /// Check if tree contains element
         /// </summary>
@@ -108,6 +122,7 @@ namespace Structure
             }
             return false;
         }
+
         /// <summary>
         /// Remove all elements from the tree
         /// </summary>
@@ -116,6 +131,7 @@ namespace Structure
             head = null;
             counter = 0;
         }
+
         /// <summary>
         /// Remove element from the tree
         /// </summary>
@@ -123,8 +139,8 @@ namespace Structure
         /// <exception cref="ArgumentNullException">argument must not be null</exception>
         public void Remove(T value)
         {
-            if(ReferenceEquals(value,null)) throw new ArgumentNullException($"{nameof(value)} must not be null");
-            if (!Contains(value)) return ;
+            if (ReferenceEquals(value, null)) throw new ArgumentNullException($"{nameof(value)} must not be null");
+            if (!Contains(value)) return;
 
             Node<T> curent = head;
             Node<T> parentCurent = null;
@@ -180,6 +196,7 @@ namespace Structure
 
             counter--;
         }
+
         /// <summary>
         /// Inorder version to watch on the tree
         /// </summary>
@@ -207,6 +224,7 @@ namespace Structure
                 }
             }
         }
+
         /// <summary>
         /// Preoder version to watch on the tree
         /// </summary>
@@ -229,6 +247,7 @@ namespace Structure
                     stack.Push(node.Left);
             }
         }
+
         /// <summary>
         /// Postoder version to watch on the tree
         /// </summary>
@@ -267,5 +286,30 @@ namespace Structure
                 }
             }
         }
+
+        public IEnumerator<T> GetEnumerator() => Inorder().GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()=>GetEnumerator();
+        
+    }
+
+
+    internal sealed class Node<T>
+    {
+        public T Value { get; set; }
+        public Node<T> Left { get; set; }
+        public Node<T> Right { get; set; }
+
+        /// <summary>
+        /// Create node of the tree with element inside
+        /// </summary>
+        /// <param name="obj">element inside the node</param>
+        /// <exception cref="ArgumentNullException">argument must not be null</exception>
+        public Node(T obj)
+        {
+            if (ReferenceEquals(obj, null)) throw new ArgumentNullException($"{nameof(obj)} must not be null");
+
+            Value = obj;
+        }
+
     }
 }
